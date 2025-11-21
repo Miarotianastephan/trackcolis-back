@@ -7,7 +7,7 @@
 -- ============================================================================
 
 -- Suppression de la base si elle existe déjà (optionnel - décommenter si nécessaire)
--- DROP DATABASE IF EXISTS trackcolis;
+DROP DATABASE IF EXISTS trackcolis;
 
 -- Création de la base de données TrackColis
 CREATE DATABASE IF NOT EXISTS trackcolis 
@@ -67,13 +67,20 @@ CREATE TABLE trc_colis_type (
     CONSTRAINT uk_trc_colis_type_key UNIQUE (type_key)
 ) ENGINE=InnoDB COMMENT='TrackColis - Table des types de colis';
 
+-- Insertion des types de colis de référence
+INSERT INTO trc_colis_type (type_key, type_label, description) VALUES
+    ('express', 'Express', 'Colis livré en express'),
+    ('standard', 'Standard', 'Colis standard'),
+    ('fragile', 'Fragile', 'Colis marqué fragile'),
+    ('international', 'International', 'Colis à destination internationale');
+
 -- Table trc_colis modifiée pour référencer trc_colis_type
 CREATE TABLE trc_colis (
     package_id INT AUTO_INCREMENT,
     name VARCHAR(100) NOT NULL,
     tracking_number VARCHAR(50) NOT NULL,
     type_id INT NOT NULL,                -- FK vers trc_colis_type
-    unit VARCHAR(50) NOT NULL,
+    weight DECIMAL(10,2) NOT NULL,
     price DECIMAL(10,2) NOT NULL,
     status ENUM('pending', 'shipped', 'delivered', 'cancelled') NOT NULL DEFAULT 'pending',
     user_id INT NOT NULL,
@@ -152,12 +159,12 @@ INSERT INTO trc_user (name, email, phone, role_id) VALUES
     ('Pierre Durand', 'pierre.durand@trackcolis.com', '0623456789', 3),
     ('Sophie Bernard', 'sophie.bernard@trackcolis.com', '0687654321', 3);
 
--- Insertion de colis de test TrackColis
-INSERT INTO trc_colis (name, tracking_number, type, unit, price, status, user_id) VALUES
-    ('Colis Express 1', 'TRC001234567', 'Express', 'kg', 25.50, 'shipped', 2),
-    ('Colis Standard 1', 'TRC001234568', 'Standard', 'kg', 15.00, 'delivered', 3),
-    ('Colis Fragile', 'TRC001234569', 'Fragile', 'kg', 35.75, 'pending', 2),
-    ('Colis International', 'TRC001234570', 'International', 'kg', 85.00, 'shipped', 4);
+-- Insertion de colis de test TrackColis (référence via type_id)
+INSERT INTO trc_colis (name, tracking_number, type_id, weight, price, status, user_id) VALUES
+    ('Colis Express 1', 'TRC001234567', (SELECT type_id FROM trc_colis_type WHERE type_key = 'express' LIMIT 1), 2.50, 25.50, 'shipped', 2),
+    ('Colis Standard 1', 'TRC001234568', (SELECT type_id FROM trc_colis_type WHERE type_key = 'standard' LIMIT 1), 1.20, 15.00, 'delivered', 3),
+    ('Colis Fragile', 'TRC001234569', (SELECT type_id FROM trc_colis_type WHERE type_key = 'fragile' LIMIT 1), 0.80, 35.75, 'pending', 2),
+    ('Colis International', 'TRC001234570', (SELECT type_id FROM trc_colis_type WHERE type_key = 'international' LIMIT 1), 5.00, 85.00, 'shipped', 4);
 
 -- Insertion de factures de test TrackColis
 INSERT INTO trc_facture (invoice_type, amount, package_id, generation_date) VALUES
@@ -178,8 +185,8 @@ SELECT
     c.package_id,
     c.name AS colis_name,
     c.tracking_number,
-    c.type,
-    c.unit,
+    ct.type_label AS type,
+    c.weight AS weight,
     c.price,
     c.status,
     u.user_id,
@@ -187,6 +194,7 @@ SELECT
     u.email AS user_email,
     r.role_name
 FROM trc_colis c
+JOIN trc_colis_type ct ON c.type_id = ct.type_id
 JOIN trc_user u ON c.user_id = u.user_id
 JOIN trc_role r ON u.role_id = r.role_id;
 
@@ -231,12 +239,13 @@ CREATE PROCEDURE sp_trc_create_colis(
     IN p_name VARCHAR(100),
     IN p_tracking_number VARCHAR(50),
     IN p_type VARCHAR(50),
-    IN p_unit VARCHAR(50),
+    IN p_weight DECIMAL(10,2),
     IN p_price DECIMAL(10,2),
     IN p_user_id INT
 )
 BEGIN
     DECLARE v_user_exists INT;
+    DECLARE v_type_id INT;
     
     -- Vérifier si l'utilisateur existe dans TrackColis
     SELECT COUNT(*) INTO v_user_exists FROM trc_user WHERE user_id = p_user_id;
@@ -245,11 +254,22 @@ BEGIN
         SIGNAL SQLSTATE '45000' 
         SET MESSAGE_TEXT = 'TrackColis: L\'utilisateur spécifié n\'existe pas';
     END IF;
+
+    -- Résoudre le type texte en type_id (recherche par clé ou label)
+    SELECT type_id INTO v_type_id
+    FROM trc_colis_type
+    WHERE type_key = p_type OR type_label = p_type
+    LIMIT 1;
+
+    IF v_type_id IS NULL THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'TrackColis: Le type de colis spécifié n\'existe pas';
+    END IF;
     
-    -- Insérer le colis dans TrackColis
-    INSERT INTO trc_colis (name, tracking_number, type, unit, price, status, user_id)
-    VALUES (p_name, p_tracking_number, p_type, p_unit, p_price, 'pending', p_user_id);
-    
+    -- Insérer le colis dans TrackColis en utilisant type_id et weight
+    INSERT INTO trc_colis (name, tracking_number, type_id, weight, price, status, user_id)
+    VALUES (p_name, p_tracking_number, v_type_id, p_weight, p_price, 'pending', p_user_id);
+
     SELECT LAST_INSERT_ID() AS package_id;
 END //
 
