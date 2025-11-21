@@ -51,8 +51,8 @@ async function findUserByEmail(email) {
 }
 
 async function findUserById(id) {
-  const user = await User.findByPk(id, { include: [{ model: Role, attributes: ['role_id','role_name'] }] });
-  return user ? user.get({ plain: true }) : null;
+    const user = await User.findByPk(id, { include: [{ model: UserRole, attributes: ['role_id','role_name'] }] });
+    return user ? user.get({ plain: true }) : null;
 }
 
 async function isValidRole(role_id){
