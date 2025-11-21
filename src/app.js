@@ -16,6 +16,7 @@ app.use(express.urlencoded({ extended: true }));
 // Routes
 const authRoutes = require('./routes/auth.routes');
 const colisRoutes = require('./routes/colis.routes');
+const colisTypeRoutes = require('./routes/colyType.routes');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/colis', colisRoutes);
@@ -37,7 +38,6 @@ app.use((err, req, res, next) => {
 });
 
 
-const colisTypeRoutes = require('./routes/colisType');
 app.use('/colis-types', colisTypeRoutes);
 
 module.exports = app;

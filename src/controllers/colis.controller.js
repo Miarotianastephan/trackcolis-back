@@ -68,9 +68,60 @@ async function getColisByUserId(req, res, next) {
   }
 }
 
+/**
+ * Mettre à jour le statut d'un colis (Admin only)
+ */
+async function updateColisStatus(req, res, next) {
+  try {
+    const { package_id } = req.params;
+    const { status } = req.body;
+
+    if (!status) {
+      return res.status(400).json({ error: 'Status is required' });
+    }
+
+    const colis = await colisService.updateColisStatus(package_id, status);
+    res.json({
+      message: 'Colis status updated successfully',
+      colis,
+    });
+  } catch (err) {
+    if (err.message && (err.message.includes('not found') || err.message.includes('Invalid status'))) {
+      return res.status(400).json({ error: err.message });
+    }
+    next(err);
+  }
+}
+
+/**
+ * Recherche multi-critères dans les colis
+ */
+async function searchColis(req, res, next) {
+  try {
+    const { searchCriteria } = req.query;
+
+    if (!searchCriteria || searchCriteria.trim() === '') {
+      return res.status(400).json({ error: 'Search criteria is required' });
+    }
+
+    const results = await colisService.searchColis(searchCriteria);
+    res.json({
+      count: results.length,
+      results,
+    });
+  } catch (err) {
+    if (err.message && err.message.includes('required')) {
+      return res.status(400).json({ error: err.message });
+    }
+    next(err);
+  }
+}
+
 module.exports = {
   createColis,
   getAllColis,
   getColisByIdWithDetails,
   getColisByUserId,
+  updateColisStatus,
+  searchColis,
 };

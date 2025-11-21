@@ -7,6 +7,9 @@ const colisController = require('../controllers/colis.controller');
 // Créer un nouveau colis (Admin only)
 router.post('/', authenticate, requireAdmin, colisController.createColis);
 
+// Recherche multi-critères (authentifié)
+router.get('/search', authenticate, colisController.searchColis);
+
 // Récupérer tous les colis (authentifié)
 router.get('/', authenticate, colisController.getAllColis);
 
@@ -15,5 +18,8 @@ router.get('/:package_id', authenticate, colisController.getColisByIdWithDetails
 
 // Récupérer les colis d'un utilisateur (authentifié)
 router.get('/user/:user_id', authenticate, colisController.getColisByUserId);
+
+// Mettre à jour le statut d'un colis (Admin only)
+router.patch('/:package_id/status', authenticate, requireAdmin, colisController.updateColisStatus);
 
 module.exports = router;

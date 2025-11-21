@@ -91,9 +91,60 @@ async function getColisByUserId(user_id) {
   return colis.map(c => c.get({ plain: true }));
 }
 
+/**
+ * Met à jour le statut d'un colis
+ * @param {number} package_id - ID du colis
+ * @param {string} status - Nouveau statut (pending, shipped, delivered, cancelled)
+ * @returns {Promise<Object>} Colis mis à jour
+ */
+async function updateColisStatus(package_id, status) {
+  const validStatuses = ['pending', 'shipped', 'delivered', 'cancelled'];
+  
+  if (!status || !validStatuses.includes(status)) {
+    throw new Error(`Invalid status. Allowed values: ${validStatuses.join(', ')}`);
+  }
+
+  const colis = await Colis.findByPk(package_id);
+  if (!colis) throw new Error(`Colis with id ${package_id} not found`);
+
+  await colis.update({ status });
+  return colis.get({ plain: true });
+}
+
+/**
+ * Recherche multi-critères dans les colis
+ * @param {string} searchCriteria - Critère de recherche unifié (numéro de suivi ou nom du client)
+ * @returns {Promise<Array>} Colis correspondant aux critères
+ */
+async function searchColis(searchCriteria) {
+  if (!searchCriteria || searchCriteria.trim() === '') {
+    throw new Error('Search criteria is required');
+  }
+
+  const colis = await Colis.findAll({
+    include: [
+      { model: ColisType, attributes: ['type_key', 'type_label', 'description'] },
+      { model: User, attributes: ['user_id', 'name', 'email', 'role_id'] },
+    ],
+  });
+
+  // Filtrage par tracking_number ou nom de client (role_id = 3)
+  const results = colis
+    .map(c => c.get({ plain: true }))
+    .filter(c => {
+      const trackingMatch = c.tracking_number.toLowerCase().includes(searchCriteria.toLowerCase());
+      const clientMatch = c.User && c.User.role_id === 3 && c.User.name.toLowerCase().includes(searchCriteria.toLowerCase());
+      return trackingMatch || clientMatch;
+    });
+
+  return results;
+}
+
 module.exports = {
   createColis,
   getAllColis,
   getColisByIdWithDetails,
   getColisByUserId,
+  updateColisStatus,
+  searchColis,
 };
