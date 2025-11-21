@@ -13,6 +13,13 @@ app.use(morgan('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Routes
+const authRoutes = require('./routes/auth.routes');
+const colisRoutes = require('./routes/colis.routes');
+
+app.use('/api/auth', authRoutes);
+app.use('/api/colis', colisRoutes);
+
 // Route de test
 app.get('/', (req, res) => {
   res.json({ message: 'TrackColis Express Is Ready!' });

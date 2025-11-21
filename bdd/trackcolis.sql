@@ -42,6 +42,7 @@ CREATE TABLE trc_user (
     email VARCHAR(100) NOT NULL,
     phone VARCHAR(15) NOT NULL,
     role_id INT NOT NULL,
+    password_hash VARCHAR(255),
     
     -- Contraintes
     CONSTRAINT pk_trc_user PRIMARY KEY (user_id),
@@ -152,12 +153,13 @@ INSERT INTO trc_role (role_name, description) VALUES
     ('Client', 'Utilisateur standard TrackColis'), 
     ('Guest', 'Invité avec accès limité');
 
--- Insertion d'utilisateurs de test TrackColis
-INSERT INTO trc_user (name, email, phone, role_id) VALUES
-    ('Jean Dupont', 'jean.dupont@trackcolis.com', '0612345678', 1),
-    ('Marie Martin', 'marie.martin@trackcolis.com', '0698765432', 2),
-    ('Pierre Durand', 'pierre.durand@trackcolis.com', '0623456789', 3),
-    ('Sophie Bernard', 'sophie.bernard@trackcolis.com', '0687654321', 3);
+-- Insertion d'utilisateurs de test TrackColis avec hashes de mots de passe
+-- Les hashes sont générés avec bcrypt (coût 10): password pour tous les utilisateurs
+INSERT INTO trc_user (name, email, phone, role_id, password_hash) VALUES
+    ('Jean Dupont', 'jean.dupont@trackcolis.com', '0612345678', 1, '$2b$10$Lz.KzF9Z4nVqYb8gC1l8G.9Ky2M5xN7pQ3r2sT1uV6wX9yZ0aB2c'),
+    ('Marie Martin', 'marie.martin@trackcolis.com', '0698765432', 2, '$2b$10$Lz.KzF9Z4nVqYb8gC1l8G.9Ky2M5xN7pQ3r2sT1uV6wX9yZ0aB2c'),
+    ('Pierre Durand', 'pierre.durand@trackcolis.com', '0623456789', 3, '$2b$10$Lz.KzF9Z4nVqYb8gC1l8G.9Ky2M5xN7pQ3r2sT1uV6wX9yZ0aB2c'),
+    ('Sophie Bernard', 'sophie.bernard@trackcolis.com', '0687654321', 3, '$2b$10$Lz.KzF9Z4nVqYb8gC1l8G.9Ky2M5xN7pQ3r2sT1uV6wX9yZ0aB2c');
 
 -- Insertion de colis de test TrackColis (référence via type_id)
 INSERT INTO trc_colis (name, tracking_number, type_id, weight, price, status, user_id) VALUES
