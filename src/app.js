@@ -36,4 +36,8 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: 'Erreur serveur' });
 });
 
+
+const colisTypeRoutes = require('./routes/colisType');
+app.use('/colis-types', colisTypeRoutes);
+
 module.exports = app;
