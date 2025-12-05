@@ -20,6 +20,7 @@ const colisTypeRoutes = require('./routes/colyType.routes');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/colis', colisRoutes);
+app.use('/api/colis-types', colisTypeRoutes);
 
 // Route de test
 app.get('/', (req, res) => {
@@ -38,6 +39,5 @@ app.use((err, req, res, next) => {
 });
 
 
-app.use('/colis-types', colisTypeRoutes);
 
 module.exports = app;

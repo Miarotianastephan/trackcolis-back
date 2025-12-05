@@ -99,7 +99,7 @@ async function getColisByUserId(user_id) {
  */
 async function updateColisStatus(package_id, status) {
   const validStatuses = ['pending', 'shipped', 'delivered', 'cancelled'];
-  
+
   if (!status || !validStatuses.includes(status)) {
     throw new Error(`Invalid status. Allowed values: ${validStatuses.join(', ')}`);
   }

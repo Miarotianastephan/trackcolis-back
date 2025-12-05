@@ -11,7 +11,7 @@ async function register(req, res, next) {
     const result = await authService.register({ name, email, phone, password, role_id:used_role });
     res.status(201).json({ user: result.user, token: result.token });
   } catch (err) {
-    if (err.message && err.message.includes('Email')) return res.status(409).json({ error: err.message });
+    if (err.message && err.message.includes('Email')) return res.status(409).json({ message: err.message });
     next(err);
   }
 }
@@ -23,8 +23,18 @@ async function login(req, res, next) {
     const result = await authService.login({ email, password });
     res.json({ user: result.user, token: result.token });
   } catch (err) {
-    return res.status(401).json({ error: 'Invalid credentials' });
+    return res.status(401).json({ message: 'Invalid credentials' });
   }
 }
 
-module.exports = { register, login };
+// Récupérer la liste des clients (Admin only)
+async function getClients(req, res, next) {
+  try {
+    const clients = await authService.findAllClients();
+    res.json({ clients });
+  } catch (err) {
+    next(err);
+  }
+}
+
+module.exports = { register, login, getClients };

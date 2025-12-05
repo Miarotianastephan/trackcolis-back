@@ -63,4 +63,9 @@ async function isValidRole(role_id){
     return true
 }
 
-module.exports = { register, login, generateToken, getUserById };
+async function findAllClients(){
+    const clients = await User.findAll({ where: { role_id: 3 }, attributes: ['user_id', 'name', 'email', 'phone'] });
+    return clients.map(c => c.get({ plain: true }));
+}
+
+module.exports = { register, login, generateToken, getUserById, findAllClients };
