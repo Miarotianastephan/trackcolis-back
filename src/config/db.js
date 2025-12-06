@@ -1,5 +1,4 @@
 const { Sequelize } = require('sequelize');
-// Utiliser le système centralisé de gestion des environnements
 const { getEnv } = require('./env');
 
 const sequelize = new Sequelize(
@@ -8,8 +7,18 @@ const sequelize = new Sequelize(
   getEnv('DB_PASSWORD'),
   {
     host: getEnv('DB_HOST'),
+    port: getEnv('DB_PORT') || 10398,
     dialect: 'mysql',
     logging: false,
+    dialectOptions: {
+      connectTimeout: 15000, // éviter ETIMEDOUT
+    },
+    pool: {
+      max: 10,
+      min: 0,
+      acquire: 30000, // temps max d'attente pour une connexion
+      idle: 10000,
+    },
   }
 );
 
