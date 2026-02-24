@@ -78,7 +78,7 @@ Testing and linting:
 
 - `src/controllers/auth.controller.js`:
   - `register`:
-    - Applies a default role (`DEFAULT_ROLE_ID = 3`) when not provided.
+    - Applies a default role (`DEFAULT_ROLE = 'user'`) when not provided.
     - Validates presence of `name`, `email`, `password`.
     - Delegates to `auth.service.register` and returns `{ user, token }` on success.
   - `login`:
@@ -91,14 +91,14 @@ Testing and linting:
 
 - Services in `src/services` encapsulate domain logic and DB access:
   - `auth.service.js`:
-    - User registration with bcrypt password hashing and `UserRole` validation.
+    - User registration with bcrypt password hashing and simple role string validation (`agent`,`admin`,`user`).
     - Login with credential verification.
     - JWT generation (`generateToken`) and user fetching (`getUserById`).
   - `colis.service.js`:
     - Creation of parcels, including validation, resolving `ColisType` by `type_id` or `type_label`, uniqueness of `tracking_number`, and verifying that `User` exists.
     - Fetching parcels with eager-loaded `ColisType` and `User` via Sequelize includes.
     - Status updates with validation against an explicit `validStatuses` set.
-    - In-memory multi-criteria search that filters Sequelize results by `tracking_number` and client name (`role_id === 3`).
+    - In-memory multi-criteria search that filters Sequelize results by `tracking_number` and client name (`role === 'user'`).
 
 ### Models and data layer
 
@@ -112,7 +112,7 @@ Testing and linting:
   - `src/models/facture.model.js` (`Facture`): maps to `trc_facture`.
 
 - Associations configured in `src/models/index.js`:
-  - `User.belongsTo(UserRole, { foreignKey: 'role_id' })`
+  - Users no longer reference a separate role table; their `role` field is an ENUM stored directly on the `User` model.
   - `Colis.belongsTo(User, { foreignKey: 'user_id' })`
   - `Colis.belongsTo(ColisType, { foreignKey: 'type_id' })`
   - `Facture.belongsTo(Colis, { foreignKey: 'package_id' })`

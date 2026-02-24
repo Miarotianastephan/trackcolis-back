@@ -1,8 +1,8 @@
 /**
- * Middleware pour vérifier que l'utilisateur a le rôle Admin (role_id = 1)
+ * Middleware pour vérifier que l'utilisateur a le rôle Admin (role = 'admin')
  */
 async function requireAdmin(req, res, next) {
-  if (!req.user || req.user.role_id !== 1) {
+  if (!req.user || req.user.role !== 'admin') {
     return res.status(403).json({ error: 'Forbidden: Admin access required' });
   }
   next();

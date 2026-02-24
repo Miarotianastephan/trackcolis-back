@@ -1,14 +1,14 @@
 const authService = require('../services/auth.service');
 
-const DEFAULT_ROLE_ID = 3 // Client utilisateur standard 
+// default role when none is provided
+const DEFAULT_ROLE = 'user';
 
 async function register(req, res, next) {
   try {
-    const { name, email, phone, password, role_id } = req.body;
-    const used_role = role_id ? role_id : DEFAULT_ROLE_ID
-    console.log('role id'+used_role)
+    const { name, email, phone, password, role } = req.body;
+    const usedRole = role ? role : DEFAULT_ROLE;
     if (!name || !email || !password) return res.status(400).json({ error: 'Missing required fields' });
-    const result = await authService.register({ name, email, phone, password, role_id:used_role });
+    const result = await authService.register({ name, email, phone, password, role: usedRole });
     res.status(201).json({ user: result.user, token: result.token });
   } catch (err) {
     if (err.message && err.message.includes('Email')) return res.status(409).json({ message: err.message });

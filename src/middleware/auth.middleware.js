@@ -14,7 +14,8 @@ async function authenticate(req, res, next) {
     const user = await authService.getUserById(payload.user_id);
     console.log('User Header: ', user);
     if (!user) return res.status(401).json({ error: 'Unauthorized' });
-    req.user = { user_id: user.user_id, email: user.email, role_id: user.role_id };
+    // store role string rather than numeric id
+    req.user = { user_id: user.user_id, email: user.email, role: user.role };
     next();
   } catch (err) {
     return res.status(401).json({ error: 'Invalid token' });

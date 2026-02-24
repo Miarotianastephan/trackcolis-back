@@ -3,15 +3,15 @@ const { Op } = require('sequelize');
 
 /**
  * Crée un nouveau colis
- * @param {Object} coliData - {name, tracking_number, type_id/type_label, weight, price, user_id}
+ * @param {Object} coliData - {name, tracking_number, type_id/type_label, user_id}
  * @returns {Promise<Object>} Colis créé
  */
 async function createColis(coliData) {
-  const { name, tracking_number, type_id, type_label, weight, price, user_id } = coliData;
+  const { name, tracking_number, type_id, type_label, user_id } = coliData;
 
   // Validation basique
-  if (!name || !tracking_number || !weight || !price || !user_id) {
-    throw new Error('Missing required fields: name, tracking_number, weight, price, user_id');
+  if (!name || !tracking_number || !user_id) {
+    throw new Error('Missing required fields: name, tracking_number, user_id');
   }
 
   // Résoudre type_id: soit directement fourni, soit par type_label
@@ -43,8 +43,6 @@ async function createColis(coliData) {
     name,
     tracking_number,
     type_id: resolvedTypeId,
-    weight: parseFloat(weight),
-    price: parseFloat(price),
     status: 'pending',
     user_id,
   });
@@ -72,7 +70,7 @@ async function getColisByIdWithDetails(package_id) {
   const colis = await Colis.findByPk(package_id, {
     include: [
       { model: ColisType, attributes: ['type_key', 'type_label', 'description'] },
-      { model: User, attributes: ['user_id', 'name', 'email'] },
+      { model: User, attributes: ['user_id', 'name', 'email', 'role'] },
     ],
   });
   return colis ? colis.get({ plain: true }) : null;
@@ -124,16 +122,16 @@ async function searchColis(searchCriteria) {
   const colis = await Colis.findAll({
     include: [
       { model: ColisType, attributes: ['type_key', 'type_label', 'description'] },
-      { model: User, attributes: ['user_id', 'name', 'email', 'role_id'] },
+      { model: User, attributes: ['user_id', 'name', 'email', 'role'] },
     ],
   });
 
-  // Filtrage par tracking_number ou nom de client (role_id = 3)
+  // Filtrage par tracking_number ou nom de client (role = 'user')
   const results = colis
     .map(c => c.get({ plain: true }))
     .filter(c => {
       const trackingMatch = c.tracking_number.toLowerCase().includes(searchCriteria.toLowerCase());
-      const clientMatch = c.User && c.User.role_id === 3 && c.User.name.toLowerCase().includes(searchCriteria.toLowerCase());
+      const clientMatch = c.User && c.User.role === 'user' && c.User.name.toLowerCase().includes(searchCriteria.toLowerCase());
       return trackingMatch || clientMatch;
     });
 
