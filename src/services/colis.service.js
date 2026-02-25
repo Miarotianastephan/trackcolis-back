@@ -3,15 +3,15 @@ const { Op } = require('sequelize');
 
 /**
  * Crée un nouveau colis
- * @param {Object} coliData - {name, tracking_number, type_id/type_label, user_id}
+ * @param {Object} coliData - {name, tracking_number, type_id/type_label, transport_type, user_id}
  * @returns {Promise<Object>} Colis créé
  */
 async function createColis(coliData) {
-  const { name, tracking_number, type_id, type_label, user_id } = coliData;
+  const { name, tracking_number, type_id, type_label, transport_type, user_id } = coliData;
 
   // Validation basique
-  if (!name || !tracking_number || !user_id) {
-    throw new Error('Missing required fields: name, tracking_number, user_id');
+  if (!name || !tracking_number || !user_id || !transport_type) {
+    throw new Error('Missing required fields: name, tracking_number, transport_type, user_id');
   }
 
   // Résoudre type_id: soit directement fourni, soit par type_label
@@ -43,7 +43,8 @@ async function createColis(coliData) {
     name,
     tracking_number,
     type_id: resolvedTypeId,
-    status: 'pending',
+    transport_type,
+    status: 'en attente',
     user_id,
   });
 
@@ -96,7 +97,7 @@ async function getColisByUserId(user_id) {
  * @returns {Promise<Object>} Colis mis à jour
  */
 async function updateColisStatus(package_id, status) {
-  const validStatuses = ['pending', 'shipped', 'delivered', 'cancelled'];
+  const validStatuses = ['en attente', 'livrer en chine', 'en transite', 'livrer a mada'];
 
   if (!status || !validStatuses.includes(status)) {
     throw new Error(`Invalid status. Allowed values: ${validStatuses.join(', ')}`);

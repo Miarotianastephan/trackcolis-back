@@ -6,7 +6,10 @@ const Colis = sequelize.define('Colis', {
   name: { type: DataTypes.STRING(100), allowNull: false },
   tracking_number: { type: DataTypes.STRING(50), allowNull: false, unique: true },
   type_id: { type: DataTypes.INTEGER, allowNull: false },
-  status: { type: DataTypes.ENUM('pending','shipped','delivered','cancelled'), allowNull: false },
+  transport_type: { type: DataTypes.ENUM('maritime','aerien'), allowNull: false, defaultValue: 'maritime' },
+  status: { type: DataTypes.ENUM('en attente','livrer en chine','en transite','livrer a mada'), allowNull: false, defaultValue: 'en attente' },
+  created_at: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW },
+  delivery_date: { type: DataTypes.DATE, allowNull: true, defaultValue: null },
   user_id: { type: DataTypes.INTEGER, allowNull: false },
 }, { tableName: 'trc_colis', timestamps: false });
 

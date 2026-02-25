@@ -5,13 +5,14 @@ const colisService = require('../services/colis.service');
  */
 async function createColis(req, res, next) {
   try {
-    const { name, tracking_number, type_id, type_label, user_id } = req.body;
+    const { name, tracking_number, type_id, type_label, transport_type, user_id } = req.body;
 
     const colis = await colisService.createColis({
       name,
       tracking_number,
       type_id,
       type_label,
+      transport_type,
       user_id,
     });
 

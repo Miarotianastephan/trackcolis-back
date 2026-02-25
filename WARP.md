@@ -97,7 +97,7 @@ Testing and linting:
   - `colis.service.js`:
     - Creation of parcels, including validation, resolving `ColisType` by `type_id` or `type_label`, uniqueness of `tracking_number`, and verifying that `User` exists.
     - Fetching parcels with eager-loaded `ColisType` and `User` via Sequelize includes.
-    - Status updates with validation against an explicit `validStatuses` set.
+    - Status updates with validation against an explicit `validStatuses` set. New states: `en attente`, `livrer en chine`, `en transite`, `livrer a mada`.
     - In-memory multi-criteria search that filters Sequelize results by `tracking_number` and client name (`role === 'user'`).
 
 ### Models and data layer

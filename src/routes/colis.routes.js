@@ -5,7 +5,7 @@ const { requireAdmin } = require('../middleware/authorize.middleware');
 const colisController = require('../controllers/colis.controller');
 
 // Créer un nouveau colis (Admin only)
-router.post('/', authenticate, requireAdmin, colisController.createColis);
+router.post('/', authenticate, colisController.createColis);
 
 // Recherche multi-critères (authentifié)
 router.get('/search', authenticate, colisController.searchColis);
