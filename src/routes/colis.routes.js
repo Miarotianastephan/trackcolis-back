@@ -8,7 +8,11 @@ const colisController = require('../controllers/colis.controller');
 router.post('/', authenticate, colisController.createColis);
 
 // Recherche multi-critères (authentifié)
+// Recherche texte simple (authentifié)
 router.get('/search', authenticate, colisController.searchColis);
+
+// Filtrage multi-critères (tracking_number, transport_type, status, type_id)
+router.get('/filter', authenticate, colisController.filterColis);
 
 // Récupérer tous les colis (authentifié)
 router.get('/', authenticate, colisController.getAllColis);

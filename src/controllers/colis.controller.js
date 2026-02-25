@@ -116,6 +116,24 @@ async function searchColis(req, res, next) {
   }
 }
 
+/**
+ * Filtrage multi-critères (AND): tracking_number, transport_type, status, type_id
+ */
+async function filterColis(req, res, next) {
+  try {
+    const { tracking_number, transport_type, status, type_id } = req.query;
+
+    if (!tracking_number && !transport_type && !status && !type_id) {
+      return res.status(400).json({ error: 'At least one filter must be provided' });
+    }
+
+    const results = await colisService.filterColis({ tracking_number, transport_type, status, type_id });
+    res.json({ count: results.length, results });
+  } catch (err) {
+    next(err);
+  }
+}
+
 module.exports = {
   createColis,
   getAllColis,
@@ -123,4 +141,5 @@ module.exports = {
   getColisByUserId,
   updateColisStatus,
   searchColis,
+  filterColis,
 };

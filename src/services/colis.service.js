@@ -146,4 +146,41 @@ module.exports = {
   getColisByUserId,
   updateColisStatus,
   searchColis,
+  filterColis,
 };
+
+/**
+ * Recherche multi-critères (AND) par tracking_number, transport_type, status, type_id
+ * @param {Object} filters - {tracking_number, transport_type, status, type_id}
+ * @returns {Promise<Array>} matching colis
+ */
+async function filterColis(filters) {
+  const { tracking_number, transport_type, status, type_id } = filters || {};
+
+  const whereClauses = [];
+  if (tracking_number) {
+    whereClauses.push({ tracking_number: { [Op.like]: `%${tracking_number}%` } });
+  }
+  if (transport_type) {
+    whereClauses.push({ transport_type });
+  }
+  if (status) {
+    whereClauses.push({ status });
+  }
+  if (type_id) {
+    const id = Number(type_id);
+    if (!Number.isNaN(id)) whereClauses.push({ type_id: id });
+  }
+
+  const where = whereClauses.length ? { [Op.and]: whereClauses } : {};
+
+  const colis = await Colis.findAll({
+    where,
+    include: [
+      { model: ColisType, attributes: ['type_key', 'type_label', 'description'] },
+      { model: User, attributes: ['user_id', 'name', 'email', 'role'] },
+    ],
+  });
+
+  return colis.map(c => c.get({ plain: true }));
+}
