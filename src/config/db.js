@@ -1,24 +1,20 @@
 const { Sequelize } = require('sequelize');
-const { getEnv } = require('./env');
 
 const sequelize = new Sequelize(
-  getEnv('DB_NAME'),
-  getEnv('DB_USER'),
-  getEnv('DB_PASSWORD'),
+  process.env.DB_NAME || 'trackcolis',
+  process.env.DB_USER || 'root',
+  process.env.DB_PASSWORD || '',
   {
-    host: getEnv('DB_HOST'),
-    port: getEnv('DB_PORT') || 10398,
+    host: process.env.DB_HOST || 'localhost',
+    port: process.env.DB_PORT || 3306,
     dialect: 'mysql',
-    logging: false,
-    dialectOptions: {
-      connectTimeout: 15000, // éviter ETIMEDOUT
-    },
+    logging: console.log,
     pool: {
-      max: 10,
+      max: 5,
       min: 0,
-      acquire: 30000, // temps max d'attente pour une connexion
-      idle: 10000,
-    },
+      acquire: 30000,
+      idle: 10000
+    }
   }
 );
 
