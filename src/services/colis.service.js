@@ -7,28 +7,12 @@ const { Op } = require('sequelize');
  * @returns {Promise<Object>} Colis créé
  */
 async function createColis(coliData) {
-  const { name, tracking_number, type_id, type_label, transport_type, user_id } = coliData;
+  const { name, tracking_number, transport_type, user_id } = coliData;
 
   // Validation basique
   if (!name || !tracking_number || !user_id || !transport_type) {
     throw new Error('Missing required fields: name, tracking_number, transport_type, user_id');
   }
-
-  // Résoudre type_id: soit directement fourni, soit par type_label
-  let resolvedTypeId = type_id;
-  if (!resolvedTypeId && type_label) {
-    const colisType = await ColisType.findOne({ where: { type_label } });
-    if (!colisType) throw new Error(`Colis type with label "${type_label}" not found`);
-    resolvedTypeId = colisType.type_id;
-  }
-
-  if (!resolvedTypeId) {
-    throw new Error('Either type_id or type_label must be provided');
-  }
-
-  // Vérifier que le type existe
-  const typeExists = await ColisType.findByPk(resolvedTypeId);
-  if (!typeExists) throw new Error(`Colis type with id ${resolvedTypeId} not found`);
 
   // Vérifier que l'utilisateur existe
   const userExists = await User.findByPk(user_id);
@@ -42,13 +26,45 @@ async function createColis(coliData) {
   const colis = await Colis.create({
     name,
     tracking_number,
-    type_id: resolvedTypeId,
+    // type_id: resolvedTypeId,
     transport_type,
     status: 'en attente',
     user_id,
   });
 
   return colis.get({ plain: true });
+}
+
+async function colisRecievedInChina(colisToUpdate) {
+  const { package_id, type_id, type_label } = colisToUpdate;
+
+  if (!package_id) {
+    throw new Error(`Package id: ${package_id} provided`)
+  }
+
+  const existingColis = await Colis.findOne({ where: { package_id } });
+  if (!existingColis) throw new Error(`Colis with the id: ${package_id} not found`);
+
+  let resolvedTypeId = type_id;
+  if (!resolvedTypeId && type_label) {
+    const colisType = await ColisType.findOne({ where: { type_label } });
+    if (!colisType) throw new Error(`Colis type with label "${type_label}" not found`);
+    resolvedTypeId = colisType.type_id;
+  }
+
+  if (!resolvedTypeId) {
+    throw new Error('Either type_id or type_label must be provided');
+  }
+
+  const typeExists = await ColisType.findByPk(resolvedTypeId);
+  if (!typeExists) throw new Error(`Colis type with id ${resolvedTypeId} not found`);
+
+  await existingColis.update({
+    type_id: resolvedTypeId,
+    status: 'livrer en chine'
+  });
+
+  return existingColis.reload();
 }
 
 /**
@@ -147,6 +163,7 @@ module.exports = {
   updateColisStatus,
   searchColis,
   filterColis,
+  colisRecievedInChina
 };
 
 /**
