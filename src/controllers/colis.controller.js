@@ -136,21 +136,53 @@ async function searchColis(req, res, next) {
   }
 }
 
-/**
- * Filtrage multi-critères (AND): tracking_number, transport_type, status, type_id
- */
-async function filterColis(req, res, next) {
+async function filterColisController(req, res) {
   try {
-    const { tracking_number, transport_type, status, type_id } = req.query;
-
-    if (!tracking_number && !transport_type && !status && !type_id) {
-      return res.status(400).json({ error: 'At least one filter must be provided' });
+    // Vérifier que req.body existe
+    if (!req.body) {
+      return res.status(400).json({
+        success: false,
+        message: 'Le corps de la requête est vide'
+      });
     }
 
-    const results = await colisService.filterColis({ tracking_number, transport_type, status, type_id });
-    res.json({ count: results.length, results });
-  } catch (err) {
-    next(err);
+    // Solution temporaire pour le test - utiliser req.query si req.body est vide
+    const body = req.body || {};
+    const query = req.query || {};
+    
+    const filters = {
+      user_id: body.user_id || query.user_id || null, // Plus de valeur par défaut '1'
+      tracking_number: body.tracking_number || query.tracking_number || null,
+      transport_type: body.transport_type || query.transport_type || null,
+      status: body.status || query.status || null,
+      type_id: body.type_id || query.type_id || null
+    };
+
+    const options = {
+      page: parseInt(body.page || query.page || 1),
+      limit: parseInt(body.limit || query.limit || 10),
+      order: body.order || query.order || 'DESC'
+    };
+
+    console.log('📦 Filtres reçus:', filters);
+    console.log('⚙️ Options reçues:', options);
+
+    // Appel de la fonction service
+    const result = await colisService.filterColis(filters, options);
+
+    return res.status(200).json({
+      success: true,
+      data: result
+    });
+
+  } catch (error) {
+    console.error('❌ Erreur dans filterColisController:', error);
+    
+    return res.status(500).json({
+      success: false,
+      message: 'Erreur lors du filtrage des colis',
+      error: error.message
+    });
   }
 }
 
@@ -161,6 +193,6 @@ module.exports = {
   getColisByUserId,
   updateColisStatus,
   searchColis,
-  filterColis,
+  filterColisController,
   colisRecievedInChina
 };

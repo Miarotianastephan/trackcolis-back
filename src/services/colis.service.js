@@ -93,17 +93,180 @@ async function getColisByIdWithDetails(package_id) {
   return colis ? colis.get({ plain: true }) : null;
 }
 
-/**
- * Récupère les colis d'un utilisateur
- */
-async function getColisByUserId(user_id) {
-  const colis = await Colis.findAll({
+async function getColisByUserId(user_id, options = {}) {
+  const { page = 1, limit = 10, order = 'DESC' } = options;
+
+  const offset = (page - 1) * limit;
+
+  const { count, rows } = await Colis.findAndCountAll({
     where: { user_id },
     include: [
       { model: ColisType, attributes: ['type_key', 'type_label', 'description'] },
     ],
+    order: [['created_at', order]],
+    limit,
+    offset,
+    distinct: true
   });
-  return colis.map(c => c.get({ plain: true }));
+
+  return {
+    totalItems: count,
+    totalPages: Math.ceil(count / limit),
+    currentPage: page,
+    itemsPerPage: limit,
+    items: rows.map(c => c.get({ plain: true }))
+  };
+}
+
+/**
+ * Filtre les colis avec pagination et tri par date
+ * @param {object} filters - Critères de filtrage
+ * @param {string} filters.tracking_number - Numéro de suivi (recherche partielle)
+ * @param {string} filters.transport_type - Type de transport ('maritime' ou 'aerien')
+ * @param {string} filters.status - Statut du colis
+ * @param {number} filters.type_id - ID du type de colis
+ * @param {number} filters.user_id - ID de l'utilisateur (OBLIGATOIRE)
+ * @param {object} options - Options de pagination et tri
+ * @param {number} options.page - Numéro de page (défaut: 1)
+ * @param {number} options.limit - Nombre d'éléments par page (défaut: 10)
+ * @param {string} options.order - Ordre de tri: 'ASC' ou 'DESC' (défaut: 'DESC')
+ */
+async function filterColis(filters = {}, options = {}) {
+  // Extraction des filtres avec valeurs par défaut
+  const {
+    tracking_number,
+    transport_type,
+    status,
+    type_id,
+    user_id,
+    date_debut,    // Optionnel: filtre par date de début
+    date_fin       // Optionnel: filtre par date de fin
+  } = filters;
+
+  // Extraction des options de pagination
+  const {
+    page = 1,
+    limit = 10,
+    order = 'DESC',
+    orderBy = 'created_at'  // Optionnel: champ de tri
+  } = options;
+
+  // Construction dynamique des clauses WHERE
+  const whereClauses = [];
+
+  // Filtre par tracking_number (recherche partielle)
+  if (tracking_number && tracking_number.trim() !== '') {
+    whereClauses.push({
+      tracking_number: {
+        [Op.like]: `%${tracking_number.trim()}%`
+      }
+    });
+  }
+
+  // Filtre par transport_type (exact)
+  if (transport_type && ['maritime', 'aerien'].includes(transport_type)) {
+    whereClauses.push({ transport_type });
+  }
+
+  // Filtre par status (exact)
+  if (status && ['en attente', 'livrer en chine', 'en transite', 'livrer a mada'].includes(status)) {
+    whereClauses.push({ status });
+  }
+
+  // Filtre par type_id (exact)
+  if (type_id) {
+    const id = Number(type_id);
+    if (!isNaN(id) && id > 0) {
+      whereClauses.push({ type_id: id });
+    }
+  }
+
+  // Filtre par user_id (exact)
+  if (user_id) {
+    const id = Number(user_id);
+    if (!isNaN(id) && id > 0) {
+      whereClauses.push({ user_id: id });
+    }
+  }
+
+  // Filtre par plage de dates
+  if (date_debut || date_fin) {
+    const dateFilter = {};
+
+    if (date_debut) {
+      dateFilter[Op.gte] = new Date(date_debut);
+    }
+    if (date_fin) {
+      dateFilter[Op.lte] = new Date(date_fin);
+    }
+
+    whereClauses.push({ created_at: dateFilter });
+  }
+
+  // Construction de l'objet WHERE final
+  const where = whereClauses.length > 0
+    ? { [Op.and]: whereClauses }
+    : {}; // Si pas de filtres, retourne tous les colis
+
+  // Calcul de l'offset pour la pagination
+  const offset = (page - 1) * limit;
+
+  try {
+    // Exécution de la requête avec pagination
+    const { count, rows } = await Colis.findAndCountAll({
+      where,
+      include: [
+        {
+          model: ColisType,
+          attributes: ['type_id', 'type_key', 'type_label', 'description', 'price'],
+          required: false // LEFT JOIN pour inclure même si type_id est NULL
+        },
+        {
+          model: User,
+          attributes: ['user_id', 'name', 'email', 'role'],
+          required: true // INNER JOIN car user_id est toujours présent
+        },
+      ],
+      order: [[orderBy, order]],
+      limit,
+      offset,
+      distinct: true,
+      // Ajout d'attributs supplémentaires si besoin
+      attributes: [
+        'package_id',
+        'name',
+        'tracking_number',
+        'transport_type',
+        'status',
+        'created_at',
+        'delivery_date',
+        'user_id',
+        'type_id'
+      ]
+    });
+
+    // Calcul des métadonnées de pagination
+    const totalPages = Math.ceil(count / limit);
+    const hasNextPage = page < totalPages;
+    const hasPrevPage = page > 1;
+
+    // Formatage du résultat
+    return {
+      success: true,
+      data: {
+        items: rows.map(colis => colis.get({ plain: true })),
+      }
+      , pagination: {
+        currentPage: page,
+        totalItems: count,
+        totalPages
+      }
+    };
+
+  } catch (error) {
+    console.error('❌ Erreur dans filterColis service:', error);
+    throw new Error(`Erreur lors du filtrage des colis: ${error.message}`);
+  }
 }
 
 /**
@@ -166,38 +329,3 @@ module.exports = {
   colisRecievedInChina
 };
 
-/**
- * Recherche multi-critères (AND) par tracking_number, transport_type, status, type_id
- * @param {Object} filters - {tracking_number, transport_type, status, type_id}
- * @returns {Promise<Array>} matching colis
- */
-async function filterColis(filters) {
-  const { tracking_number, transport_type, status, type_id } = filters || {};
-
-  const whereClauses = [];
-  if (tracking_number) {
-    whereClauses.push({ tracking_number: { [Op.like]: `%${tracking_number}%` } });
-  }
-  if (transport_type) {
-    whereClauses.push({ transport_type });
-  }
-  if (status) {
-    whereClauses.push({ status });
-  }
-  if (type_id) {
-    const id = Number(type_id);
-    if (!Number.isNaN(id)) whereClauses.push({ type_id: id });
-  }
-
-  const where = whereClauses.length ? { [Op.and]: whereClauses } : {};
-
-  const colis = await Colis.findAll({
-    where,
-    include: [
-      { model: ColisType, attributes: ['type_key', 'type_label', 'description'] },
-      { model: User, attributes: ['user_id', 'name', 'email', 'role'] },
-    ],
-  });
-
-  return colis.map(c => c.get({ plain: true }));
-}
