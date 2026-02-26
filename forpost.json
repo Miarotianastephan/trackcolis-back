@@ -1,0 +1,35 @@
+{
+    "register_user": {
+        "name": "READY PLAYER ONE",
+        "email": "player@one.mg",
+        "phone": "123456",
+        "role": "admin",
+        "password": "admin123"
+    },
+    "login": {
+        "email": "player@one.mg",
+        "password": "admin123"
+    },
+    "insert_colis": {
+        "name": "Coca cola",
+        "tracking_number": "123456",
+        "transport_type": "maritime",
+        "user_id": "1"
+    },
+    "recieved_china": {
+        "package_id": "1",
+        "type_label": "Appareil électronique",
+        "type_id": "2"
+    },
+    "status_update": {
+        "status": "en transite"
+    },
+    "colis-type": {
+        "type_key": "KAPOTY",
+        "type_label": "Protector no tsara",
+        "description": "Fimailo mora indrindra",
+        "weight_min": "1.00",
+        "weight_max": "5.30",
+        "price": "10000.50"
+    }
+}

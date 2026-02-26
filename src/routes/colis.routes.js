@@ -13,10 +13,10 @@ router.get('/search', authenticate, colisController.searchColis);
 router.post('/recieved', authenticate, colisController.colisRecievedInChina);
 
 // Filtrage multi-critères (tracking_number, transport_type, status, type_id)
-router.get('/filter', authenticate, colisController.filterColis);
+router.post('/filter', colisController.filterColisController);
 
 // Récupérer tous les colis (authentifié)
-router.get('/', authenticate, colisController.getAllColis);
+router.get('/',authenticate, authenticate, colisController.getAllColis);
 
 // Récupérer un colis par ID (authentifié)
 router.get('/:package_id', authenticate, colisController.getColisByIdWithDetails);
