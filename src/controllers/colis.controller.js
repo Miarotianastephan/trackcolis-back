@@ -28,12 +28,12 @@ async function createColis(req, res, next) {
 
 async function colisRecievedInChina(req, res, next) {
   try {
-    const { package_id, type_id, type_label } = req.body;
+    const { package_id, type_id, _masse } = req.body;
 
     const colis = await colisService.colisRecievedInChina({
       package_id,
       type_id, 
-      type_label
+      _masse
     });
 
     res.status(201).json({
