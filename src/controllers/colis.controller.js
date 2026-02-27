@@ -186,9 +186,48 @@ async function filterColisController(req, res) {
   }
 }
 
+async function updateColisController(req, res) {
+  try {
+    const { package_id } = req.params;
+    const updateData = req.body;
+
+    const requiredFields = ['name', 'tracking_number', 'user_id'];
+    const missingFields = requiredFields.filter(field => !updateData[field]);
+    
+    if (missingFields.length > 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'Champs requis manquants',
+        missingFields
+      });
+    }
+
+    const result = await colisService.updateColis(package_id, updateData);
+
+    return res.status(200).json(result);
+
+  } catch (error) {
+    console.error('❌ Erreur updateColisController:', error);
+
+    if (error.message.includes('non trouvé')) {
+      return res.status(404).json({
+        success: false,
+        message: error.message
+      });
+    }
+
+    return res.status(500).json({
+      success: false,
+      message: 'Erreur lors de la mise à jour du colis',
+      error: error.message
+    });
+  }
+}
+
 module.exports = {
   createColis,
   getAllColis,
+  updateColisController,
   getColisByIdWithDetails,
   getColisByUserId,
   updateColisStatus,

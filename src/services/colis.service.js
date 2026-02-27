@@ -35,6 +35,80 @@ async function createColis(coliData) {
   return colis.get({ plain: true });
 }
 
+async function updateColis(package_id, updateData) {
+  try {
+
+    if (!package_id) {
+      throw new Error('package_id est requis');
+    }
+
+    const colis = await Colis.findByPk(package_id, {
+      include: [
+        { model: ColisType, attributes: ['type_id', 'type_key', 'type_label'] },
+        { model: User, attributes: ['user_id', 'name', 'email'] }
+      ]
+    });
+
+    if (!colis) {
+      throw new Error(`Colis avec l'ID ${package_id} non trouvé`);
+    }
+
+    if (updateData.tracking_number && updateData.tracking_number !== colis.tracking_number) {
+      const existingColis = await Colis.findOne({
+        where: { tracking_number: updateData.tracking_number }
+      });
+
+      if (existingColis) {
+        throw new Error(`Le numéro de suivi ${updateData.tracking_number} est déjà utilisé`);
+      }
+    }
+
+    if (updateData.type_id) {
+      const typeExists = await ColisType.findByPk(updateData.type_id);
+      if (!typeExists) {
+        throw new Error(`Type de colis avec l'ID ${updateData.type_id} non trouvé`);
+      }
+    }
+
+    if (updateData.user_id) {
+      const userExists = await User.findByPk(updateData.user_id);
+      if (!userExists) {
+        throw new Error(`Utilisateur avec l'ID ${updateData.user_id} non trouvé`);
+      }
+    }
+
+    const validTransportTypes = ['maritime', 'aerien'];
+    if (updateData.transport_type && !validTransportTypes.includes(updateData.transport_type)) {
+      throw new Error(`transport_type doit être ${validTransportTypes.join(' ou ')}`);
+    }
+
+    const validStatuses = ['en attente', 'livrer en chine', 'en transite', 'livrer a mada'];
+    if (updateData.status && !validStatuses.includes(updateData.status)) {
+      throw new Error(`status doit être ${validStatuses.join(', ')}`);
+    }
+
+    await colis.update(updateData);
+
+    await colis.reload({
+      include: [
+        { model: ColisType, attributes: ['type_id', 'type_key', 'type_label'] },
+        { model: User, attributes: ['user_id', 'name', 'email'] }
+      ]
+    });
+
+    return {
+      success: true,
+      message: 'Colis mis à jour avec succès',
+      data: colis.get({ plain: true })
+    };
+
+  } catch (error) {
+    console.error('❌ Erreur dans updateColis:', error);
+    throw error;
+  }
+}
+
+
 async function colisRecievedInChina(colisToUpdate) {
   const { package_id, type_id, type_label } = colisToUpdate;
 
@@ -320,6 +394,7 @@ async function searchColis(searchCriteria) {
 
 module.exports = {
   createColis,
+  updateColis,
   getAllColis,
   getColisByIdWithDetails,
   getColisByUserId,

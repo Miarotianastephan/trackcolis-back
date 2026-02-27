@@ -2,7 +2,6 @@ const express = require('express');
 const router = express.Router();
 const { authenticate } = require('../middleware/auth.middleware');
 const colisController = require('../controllers/colis.controller');
-
 // Créer un nouveau colis (Admin only)
 router.post('/', authenticate, colisController.createColis);
 
@@ -23,6 +22,11 @@ router.get('/:package_id', authenticate, colisController.getColisByIdWithDetails
 
 // Récupérer les colis d'un utilisateur (authentifié)
 router.get('/user/:user_id', authenticate, colisController.getColisByUserId);
+
+router.put('/:package_id', 
+  authenticate, 
+  colisController.updateColisController
+);
 
 // Mettre à jour le statut d'un colis (Admin only)
 router.patch('/:package_id/status', authenticate, colisController.updateColisStatus);
