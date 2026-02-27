@@ -110,7 +110,7 @@ async function updateColis(package_id, updateData) {
 
 
 async function colisRecievedInChina(colisToUpdate) {
-  const { package_id, type_id, type_label } = colisToUpdate;
+  const { package_id, type_id, _masse } = colisToUpdate;
 
   if (!package_id) {
     throw new Error(`Package id: ${package_id} provided`)
@@ -120,10 +120,10 @@ async function colisRecievedInChina(colisToUpdate) {
   if (!existingColis) throw new Error(`Colis with the id: ${package_id} not found`);
 
   let resolvedTypeId = type_id;
-  if (!resolvedTypeId && type_label) {
-    const colisType = await ColisType.findOne({ where: { type_label } });
-    if (!colisType) throw new Error(`Colis type with label "${type_label}" not found`);
-    resolvedTypeId = colisType.type_id;
+  let colisType = null;
+  if ( resolvedTypeId ) {
+      colisType = await ColisType.findOne({ where: { type_id } });
+    if (!colisType) throw new Error(`Colis type with id "${resolvedTypeId}" not found`);
   }
 
   if (!resolvedTypeId) {
@@ -135,7 +135,9 @@ async function colisRecievedInChina(colisToUpdate) {
 
   await existingColis.update({
     type_id: resolvedTypeId,
-    status: 'livrer en chine'
+    status: 'livrer en chine',
+    masse: _masse,
+    price: colisType.price * _masse 
   });
 
   return existingColis.reload();

@@ -59,3 +59,7 @@ CREATE TABLE trc_facture (
 -- ('VETEMENT', 'Vêtements', 'Habits, chaussures, accessoires', 0.30, 2.00, 12000.00),
 -- ('CADEAU', 'Cadeau', 'Coffrets, jouets, articles cadeaux', 0.20, 1.50, 10000.00),
 -- ('ALIMENTAIRE', 'Produits alimentaires', 'Denrées non périssables', 0.50, 5.00, 20000.00);
+
+ALTER TABLE trc_colis 
+ADD COLUMN masse DOUBLE DEFAULT NULL,
+ADD COLUMN price DOUBLE DEFAULT NULL;
