@@ -190,18 +190,7 @@ async function updateColisController(req, res) {
   try {
     const { package_id } = req.params;
     const updateData = req.body;
-
-    const requiredFields = ['name', 'tracking_number', 'user_id'];
-    const missingFields = requiredFields.filter(field => !updateData[field]);
     
-    if (missingFields.length > 0) {
-      return res.status(400).json({
-        success: false,
-        message: 'Champs requis manquants',
-        missingFields
-      });
-    }
-
     const result = await colisService.updateColis(package_id, updateData);
 
     return res.status(200).json(result);
