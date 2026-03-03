@@ -9,7 +9,7 @@ const Colis = sequelize.define('Colis', {
   masse: { type: DataTypes.DOUBLE, allowNull:true },
   price: { type: DataTypes.DOUBLE, allowNull:true },
   transport_type: { type: DataTypes.ENUM('maritime','aerien'), allowNull: false, defaultValue: 'maritime' },
-  status: { type: DataTypes.ENUM('en attente','livrer en chine','en transite','livrer a mada'), allowNull: false, defaultValue: 'en attente' },
+  status: { type: DataTypes.ENUM('en attente','livrer en chine','en transite','livrer a mada', 'livrer'), allowNull: false, defaultValue: 'en attente' },
   created_at: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW },
   delivery_date: { type: DataTypes.DATE, allowNull: true, defaultValue: null },
   user_id: { type: DataTypes.INTEGER, allowNull: false },
