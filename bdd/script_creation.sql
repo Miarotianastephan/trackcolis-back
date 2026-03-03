@@ -63,3 +63,7 @@ CREATE TABLE trc_facture (
 ALTER TABLE trc_colis 
 ADD COLUMN masse DOUBLE DEFAULT NULL,
 ADD COLUMN price DOUBLE DEFAULT NULL;
+
+ALTER TABLE trc_colis 
+MODIFY COLUMN status ENUM('en attente', 'livrer en chine', 'en transite', 'livrer a mada', 'livrer') 
+NOT NULL DEFAULT 'en attente';
