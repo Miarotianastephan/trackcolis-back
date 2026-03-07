@@ -121,8 +121,8 @@ async function colisRecievedInChina(colisToUpdate) {
 
   let resolvedTypeId = type_id;
   let colisType = null;
-  if ( resolvedTypeId ) {
-      colisType = await ColisType.findOne({ where: { type_id } });
+  if (resolvedTypeId) {
+    colisType = await ColisType.findOne({ where: { type_id } });
     if (!colisType) throw new Error(`Colis type with id "${resolvedTypeId}" not found`);
   }
 
@@ -137,7 +137,7 @@ async function colisRecievedInChina(colisToUpdate) {
     type_id: resolvedTypeId,
     status: 'livrer en chine',
     masse: _masse,
-    price: colisType.price * _masse 
+    price: colisType.price * _masse
   });
 
   return existingColis.reload();
@@ -352,17 +352,18 @@ async function filterColis(filters = {}, options = {}) {
  * @returns {Promise<Object>} Colis mis à jour
  */
 async function updateColisStatus(package_id, status) {
-  const validStatuses = ['en attente', 'livrer en chine', 'en transite', 'livrer a mada'];
+  const validStatuses = ['en attente', 'livrer en chine', 'en transite', 'livrer a mada', 'livrer'];
 
   if (!status || !validStatuses.includes(status)) {
     throw new Error(`Invalid status. Allowed values: ${validStatuses.join(', ')}`);
   }
-
-  const colis = await Colis.findByPk(package_id);
-  if (!colis) throw new Error(`Colis with id ${package_id} not found`);
-
-  await colis.update({ status });
-  return colis.get({ plain: true });
+  let colis = null;
+  for (let i = 0; i < package_id.length; i++) {
+    colis = await Colis.findByPk(package_id[i]);
+    if (!colis) throw new Error(`Colis with id ${package_id[i]} not found`);
+    await colis.update({ status });
+  }
+  return 'All colis updated succeffully';
 }
 
 /**

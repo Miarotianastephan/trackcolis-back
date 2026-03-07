@@ -67,3 +67,8 @@ ADD COLUMN price DOUBLE DEFAULT NULL;
 ALTER TABLE trc_colis 
 MODIFY COLUMN status ENUM('en attente', 'livrer en chine', 'en transite', 'livrer a mada', 'livrer') 
 NOT NULL DEFAULT 'en attente';
+
+ALTER TABLE users 
+ADD COLUMN isStaff BOOLEAN DEFAULT false;
+ALTER TABLE users 
+ADD COLUMN canModify BOOLEAN DEFAULT false;
