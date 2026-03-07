@@ -92,7 +92,8 @@ async function getColisByUserId(req, res, next) {
  */
 async function updateColisStatus(req, res, next) {
   try {
-    const { package_id } = req.params;
+    console.log(req.body, 'Bodyyyy')
+    const { package_id } = req.body;
     const { status } = req.body;
 
     if (!status) {

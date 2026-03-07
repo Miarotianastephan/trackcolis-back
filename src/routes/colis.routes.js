@@ -29,6 +29,6 @@ router.put('/:package_id',
 );
 
 // Mettre à jour le statut d'un colis (Admin only)
-router.patch('/:package_id/status', authenticate, colisController.updateColisStatus);
+router.post('/status', authenticate, colisController.updateColisStatus);
 
 module.exports = router;
