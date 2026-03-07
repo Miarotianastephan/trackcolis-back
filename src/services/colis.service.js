@@ -21,17 +21,20 @@ async function createColis(coliData) {
   // Vérifier l'unicité du tracking_number
   const existingTracking = await Colis.findOne({ where: { tracking_number } });
   if (existingTracking) throw new Error(`Tracking number "${tracking_number}" already exists`);
-
+  let colis = null;
   // Créer le colis
-  const colis = await Colis.create({
-    name,
-    tracking_number,
-    // type_id: resolvedTypeId,
-    transport_type,
-    status: 'en attente',
-    user_id,
-  });
-
+  try {
+    colis = await Colis.create({
+      name,
+      tracking_number,
+      // type_id: resolvedTypeId,
+      transport_type,
+      status: 'en attente',
+      user_id,
+    });
+  } catch (error) {
+    throw new Error(error.message);
+  }
   return colis.get({ plain: true });
 }
 
@@ -110,7 +113,7 @@ async function updateColis(package_id, updateData) {
 
 
 async function colisRecievedInChina(colisToUpdate) {
-  const { package_id, type_id, _masse } = colisToUpdate;
+  const { package_id, type_id, _masse, placement } = colisToUpdate;
 
   if (!package_id) {
     throw new Error(`Package id: ${package_id} provided`)
@@ -137,6 +140,7 @@ async function colisRecievedInChina(colisToUpdate) {
     type_id: resolvedTypeId,
     status: 'livrer en chine',
     masse: _masse,
+    placement,
     price: colisType.price * _masse
   });
 

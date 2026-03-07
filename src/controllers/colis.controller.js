@@ -7,6 +7,9 @@ async function createColis(req, res, next) {
   try {
     const { name, tracking_number, transport_type, user_id } = req.body;
 
+    console.log(req.body)
+
+
     const colis = await colisService.createColis({
       name,
       tracking_number,
@@ -28,12 +31,14 @@ async function createColis(req, res, next) {
 
 async function colisRecievedInChina(req, res, next) {
   try {
-    const { package_id, type_id, _masse } = req.body;
+    const { package_id, type_id, _masse, placement } = req.body;
+
 
     const colis = await colisService.colisRecievedInChina({
       package_id,
-      type_id, 
-      _masse
+      type_id,
+      _masse,
+      placement
     });
 
     res.status(201).json({
@@ -150,7 +155,7 @@ async function filterColisController(req, res) {
     // Solution temporaire pour le test - utiliser req.query si req.body est vide
     const body = req.body || {};
     const query = req.query || {};
-    
+
     const filters = {
       user_id: body.user_id || query.user_id || null, // Plus de valeur par défaut '1'
       tracking_number: body.tracking_number || query.tracking_number || null,
@@ -178,7 +183,7 @@ async function filterColisController(req, res) {
 
   } catch (error) {
     console.error('❌ Erreur dans filterColisController:', error);
-    
+
     return res.status(500).json({
       success: false,
       message: 'Erreur lors du filtrage des colis',
@@ -191,7 +196,7 @@ async function updateColisController(req, res) {
   try {
     const { package_id } = req.params;
     const updateData = req.body;
-    
+
     const result = await colisService.updateColis(package_id, updateData);
 
     return res.status(200).json(result);
