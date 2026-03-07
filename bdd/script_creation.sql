@@ -72,3 +72,6 @@ ALTER TABLE users
 ADD COLUMN isStaff BOOLEAN DEFAULT false;
 ALTER TABLE users 
 ADD COLUMN canModify BOOLEAN DEFAULT false;
+
+ALTER TABLE trc_colis 
+ADD COLUMN placement VARCHAR(100);
