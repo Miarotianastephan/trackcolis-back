@@ -154,7 +154,7 @@ async function getAllColis() {
   const colis = await Colis.findAll({
     include: [
       { model: ColisType, attributes: ['type_key', 'type_label', 'description'] },
-      { model: User, attributes: ['user_id', 'name', 'email'] },
+      { model: User, attributes: ['user_id', 'name', 'email','phone' ] },
     ],
   });
   return colis.map(c => c.get({ plain: true }));
@@ -167,7 +167,7 @@ async function getColisByIdWithDetails(package_id) {
   const colis = await Colis.findByPk(package_id, {
     include: [
       { model: ColisType, attributes: ['type_key', 'type_label', 'description'] },
-      { model: User, attributes: ['user_id', 'name', 'email', 'role'] },
+      { model: User, attributes: ['user_id', 'name', 'email', 'role', 'phone'] },
     ],
   });
   return colis ? colis.get({ plain: true }) : null;
@@ -303,7 +303,7 @@ async function filterColis(filters = {}, options = {}) {
         },
         {
           model: User,
-          attributes: ['user_id', 'name', 'email', 'role'],
+          attributes: ['user_id', 'name', 'email', 'role', 'phone'],
           required: true // INNER JOIN car user_id est toujours présent
         },
       ],
@@ -383,7 +383,7 @@ async function searchColis(searchCriteria) {
   const colis = await Colis.findAll({
     include: [
       { model: ColisType, attributes: ['type_key', 'type_label', 'description'] },
-      { model: User, attributes: ['user_id', 'name', 'email', 'role'] },
+      { model: User, attributes: ['user_id', 'name', 'email', 'role', 'phone'] },
     ],
   });
 
