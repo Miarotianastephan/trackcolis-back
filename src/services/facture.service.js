@@ -64,7 +64,17 @@ async function getInvoiceById(invoice_id) {
     }
 }
 
+async function getAllInvoices(){
+    try {
+        const factures = await Facture.findAll();
+        return factures.map(facture => facture.get({ plain: true }));
+    } catch (error) {
+        throw new Error(error.message);
+    }
+}
+
 module.exports = {
     createInvoiceForColis,
-    getInvoiceById
+    getInvoiceById,
+    getAllInvoices
 }

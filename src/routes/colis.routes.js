@@ -34,6 +34,8 @@ router.post('/invoice', authenticate, factureController.createInvoiceForColis);
 
 router.get('/invoice/:invoice_id', authenticate, factureController.getInvoiceById);
 
+router.get('/invoices', authenticate, factureController.getAllInvoices);
+
 // Mettre à jour le statut d'un colis (Admin only)
 router.post('/status', authenticate, colisController.updateColisStatus);
 

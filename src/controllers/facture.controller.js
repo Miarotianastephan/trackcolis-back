@@ -33,7 +33,17 @@ async function getInvoiceById(req, res, next){
     }
 }
 
+async function getAllInvoices(req, res, next){
+    try {
+        const factures = await factureService.getAllInvoices();
+        res.status(201).json({ factures });
+    } catch (err) {
+        next(err);
+    }
+}
+
 module.exports={
     createInvoiceForColis,
-    getInvoiceById
+    getInvoiceById,
+    getAllInvoices
 }
