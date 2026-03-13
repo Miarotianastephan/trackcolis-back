@@ -16,7 +16,7 @@ router.post('/recieved', authenticate, colisController.colisRecievedInChina);
 router.post('/filter', colisController.filterColisController);
 
 // Récupérer tous les colis (authentifié)
-router.get('/',authenticate, authenticate, colisController.getAllColis);
+router.get('/',authenticate, colisController.getAllColis);
 
 // Récupérer un colis par ID (authentifié)
 router.get('/:package_id', authenticate, colisController.getColisByIdWithDetails);
