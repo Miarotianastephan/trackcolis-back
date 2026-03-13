@@ -32,7 +32,7 @@ async function createInvoiceForColis(invoiceData) {
         });
 
         await Colis.update(
-            { invoice_id: facture.invoice_id },
+            { invoice_id: facture.invoice_id, status: 'livrer', delivery_date: new Date() },
             { where: { package_id: { [Op.in]: colis_ids_array } } }
         );
     
