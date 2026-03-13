@@ -13,6 +13,6 @@ const  User  = require("./user.model");
 // previously users were linked to a roles table; role is now stored directly on User as an ENUM
 Colis.belongsTo(User, { foreignKey: 'user_id' });
 Colis.belongsTo(ColisType, { foreignKey: 'type_id' });
-Facture.belongsTo(Colis, { foreignKey: 'package_id' });
+Facture.hasMany(Colis, { foreignKey: 'invoice_id' }, { as: 'Colis' });
 
 module.exports = { sequelize, Sequelize, User, ColisType, Colis, Facture };

@@ -75,3 +75,15 @@ ADD COLUMN canModify BOOLEAN DEFAULT false;
 
 ALTER TABLE trc_colis 
 ADD COLUMN placement VARCHAR(100);
+
+-- Gestion des factures sur les colis
+ALTER TABLE trc_colis 
+ADD COLUMN invoice_id INT DEFAULT NULL;
+
+ALTER TABLE trc_facture
+DROP COLUMN package_id;
+
+ALTER TABLE trc_facture DROP INDEX idx_package_id;
+
+ALTER TABLE trc_facture 
+MODIFY COLUMN generation_date DATE DEFAULT (CURRENT_DATE);

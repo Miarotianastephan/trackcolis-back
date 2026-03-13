@@ -408,6 +408,6 @@ module.exports = {
   updateColisStatus,
   searchColis,
   filterColis,
-  colisRecievedInChina
+  colisRecievedInChina,
 };
 

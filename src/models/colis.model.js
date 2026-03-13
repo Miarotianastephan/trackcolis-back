@@ -3,6 +3,7 @@ const { DataTypes } = require('sequelize');
 
 const Colis = sequelize.define('Colis', {
   package_id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+  invoice_id: { type: DataTypes.INTEGER, allowNull: true, defaultValue: null },
   name: { type: DataTypes.STRING(100), allowNull: false },
   tracking_number: { type: DataTypes.STRING(50), allowNull: false, unique: true },
   type_id: { type: DataTypes.INTEGER, allowNull: true },

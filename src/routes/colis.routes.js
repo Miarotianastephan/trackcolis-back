@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { authenticate } = require('../middleware/auth.middleware');
 const colisController = require('../controllers/colis.controller');
+const factureController = require('../controllers/facture.controller');
 // Créer un nouveau colis (Admin only)
 router.post('/', authenticate, colisController.createColis);
 
@@ -27,6 +28,11 @@ router.put('/:package_id',
   authenticate, 
   colisController.updateColisController
 );
+
+// Gestion d'une facture
+router.post('/invoice', authenticate, factureController.createInvoiceForColis);
+
+router.get('/invoice/:invoice_id', authenticate, factureController.getInvoiceById);
 
 // Mettre à jour le statut d'un colis (Admin only)
 router.post('/status', authenticate, colisController.updateColisStatus);
