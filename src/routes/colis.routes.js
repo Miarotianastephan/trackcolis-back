@@ -19,7 +19,7 @@ router.post('/filter', colisController.filterColisController);
 router.get('/',authenticate, colisController.getAllColis);
 
 // Récupérer un colis par ID (authentifié)
-router.get('/:package_id', authenticate, colisController.getColisByIdWithDetails);
+router.get('/byPackageId/:package_id', authenticate, colisController.getColisByIdWithDetails);
 
 // Récupérer les colis d'un utilisateur (authentifié)
 router.get('/user/:user_id', authenticate, colisController.getColisByUserId);

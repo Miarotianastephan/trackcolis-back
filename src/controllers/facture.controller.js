@@ -45,5 +45,6 @@ async function getAllInvoices(req, res, next){
 module.exports={
     createInvoiceForColis,
     getInvoiceById,
-    getAllInvoices
+    getAllInvoices,
+    those
 }
