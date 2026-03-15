@@ -46,5 +46,4 @@ module.exports={
     createInvoiceForColis,
     getInvoiceById,
     getAllInvoices,
-    those
 }
