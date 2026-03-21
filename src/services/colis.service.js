@@ -314,6 +314,7 @@ async function filterColis(filters = {}, options = {}) {
       // Ajout d'attributs supplémentaires si besoin
       attributes: [
         'package_id',
+        'price',
         'name',
         'tracking_number',
         'transport_type',
