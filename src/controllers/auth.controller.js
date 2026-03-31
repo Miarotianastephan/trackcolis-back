@@ -37,4 +37,13 @@ async function getClients(req, res, next) {
   }
 }
 
-module.exports = { register, login, getClients };
+async function getAllUsers(req, res, next) {
+  try {
+    const users = await authService.findAllUsers();
+    res.json({ users });
+  } catch (err) {
+    next(err);
+  }
+}
+
+module.exports = { register, login, getClients, getAllUsers };
