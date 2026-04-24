@@ -67,4 +67,9 @@ async function findAllClients(){
     return clients.map(c => c.get({ plain: true }));
 }
 
-module.exports = { register, login, generateToken, getUserById, findAllClients };
+async function findAllUsers(){
+    const users = await User.findAll({ attributes: ['user_id', 'name', 'email', 'phone', 'role'] });
+    return users.map(c => c.get({ plain: true }));
+}
+
+module.exports = { register, login, generateToken, getUserById, findAllClients, findAllUsers };
