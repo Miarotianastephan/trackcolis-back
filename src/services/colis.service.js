@@ -6,6 +6,27 @@ const { Op } = require('sequelize');
  * @param {Object} coliData - {name, tracking_number, type_id/type_label, transport_type, user_id}
  * @returns {Promise<Object>} Colis créé
  */
+
+  async function deleteColis(id) {
+    try {
+      const existingColis = await Colis.findById(id);
+      if (!existingColis) {
+        throw new Error('Colis non trouvé');
+      }
+
+      const deletedColis = await Colis.findByIdAndDelete(id);
+      
+      return {
+        success: true,
+        message: 'Colis supprimé avec succès',
+        data: deletedColis
+      };
+    } catch (error) {
+      throw new Error(`Erreur lors de la suppression: ${error.message}`);
+    }
+  }
+
+
 async function createColis(coliData) {
   const { name, tracking_number, transport_type, user_id } = coliData;
 
@@ -403,6 +424,7 @@ async function searchColis(searchCriteria) {
 
 module.exports = {
   createColis,
+  deleteColis,
   updateColis,
   getAllColis,
   getColisByIdWithDetails,

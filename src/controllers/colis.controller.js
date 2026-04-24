@@ -142,6 +142,38 @@ async function searchColis(req, res, next) {
   }
 }
 
+  async function deleteColis(req, res) {
+    try {
+      const { id } = req.params;
+      
+      if (!id) {
+        return res.status(400).json({
+          success: false,
+          message: 'ID du colis requis'
+        });
+      }
+
+      const result = await colisService.deleteColis(id);
+      
+      return res.status(200).json(result);
+      
+    } catch (error) {
+      if (error.message.includes('non trouvé')) {
+        return res.status(404).json({
+          success: false,
+          message: error.message
+        });
+      }
+      
+      return res.status(500).json({
+        success: false,
+        message: 'Erreur serveur',
+        error: error.message
+      });
+    }
+  }
+
+
 async function filterColisController(req, res) {
   try {
     // Vérifier que req.body existe
@@ -222,6 +254,7 @@ async function updateColisController(req, res) {
 module.exports = {
   createColis,
   getAllColis,
+  deleteColis,
   updateColisController,
   getColisByIdWithDetails,
   getColisByUserId,
