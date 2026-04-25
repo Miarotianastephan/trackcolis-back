@@ -1,31 +1,29 @@
 const { Colis, ColisType, User } = require('../models');
 const { Op } = require('sequelize');
-
+const db = require("../config/db");
 /**
  * Crée un nouveau colis
  * @param {Object} coliData - {name, tracking_number, type_id/type_label, transport_type, user_id}
  * @returns {Promise<Object>} Colis créé
  */
 
-  async function deleteColis(id) {
-    try {
-      const existingColis = await Colis.findById(id);
-      if (!existingColis) {
-        throw new Error('Colis non trouvé');
-      }
+async function deleteColis(id) {
+  try {
+    const sql = 'DELETE FROM trc_colis WHERE package_id = ?';
+    db.query(sql, [id], (err, result) => {
+      if (err) throw err;
+      res.send('Record deleted');
+    });
+    
+    return {
+      success: true,
+      message: "Colis supprimé avec succès"
+    };
 
-      const deletedColis = await Colis.findByIdAndDelete(id);
-      
-      return {
-        success: true,
-        message: 'Colis supprimé avec succès',
-        data: deletedColis
-      };
-    } catch (error) {
-      throw new Error(`Erreur lors de la suppression: ${error.message}`);
-    }
+  } catch (error) {
+    throw new Error(`Erreur lors de la suppression: ${error.message}`);
   }
-
+}
 
 async function createColis(coliData) {
   const { name, tracking_number, transport_type, user_id } = coliData;
@@ -175,7 +173,7 @@ async function getAllColis() {
   const colis = await Colis.findAll({
     include: [
       { model: ColisType, attributes: ['type_key', 'type_label', 'description'] },
-      { model: User, attributes: ['user_id', 'name', 'email','phone' ] },
+      { model: User, attributes: ['user_id', 'name', 'email', 'phone'] },
     ],
   });
   return colis.map(c => c.get({ plain: true }));

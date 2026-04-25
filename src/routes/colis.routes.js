@@ -15,7 +15,7 @@ router.post('/recieved', authenticate, colisController.colisRecievedInChina);
 // Filtrage multi-critères (tracking_number, transport_type, status, type_id)
 router.post('/filter', colisController.filterColisController);
 
-router.delete('/:id', colisController.deleteColis);
+router.delete('/:id',authenticate, colisController.deleteColis);
 
 // Récupérer tous les colis (authentifié)
 router.get('/',authenticate, colisController.getAllColis);
