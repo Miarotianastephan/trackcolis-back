@@ -9,17 +9,22 @@ const db = require("../config/db");
 
 async function deleteColis(id) {
   try {
-    const sql = 'DELETE FROM trc_colis WHERE package_id = ?';
-    db.query(sql, [id], (err, result) => {
-      if (err) throw err;
-      res.send('Record deleted');
+    const result = await Colis.destroy({
+      where: { package_id: id }
     });
+    
+    if (result === 0) {
+      return {
+        success: false,
+        message: "Colis non trouvé"
+      };
+    }
     
     return {
       success: true,
       message: "Colis supprimé avec succès"
     };
-
+    
   } catch (error) {
     throw new Error(`Erreur lors de la suppression: ${error.message}`);
   }
