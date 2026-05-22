@@ -99,6 +99,7 @@ async function fixFactureData() {
                 as: 'Colis'
             }]
         });
+        
         return factures.map(facture => facture.get({ plain: true }));
 
     } catch (error) {
