@@ -52,9 +52,19 @@ async function getAllInvoices(req, res, next){
     }
 }
 
+async function fixFactureData(req, res, next){
+    try {
+        const result = await factureService.fixFactureData();
+        res.status(201).json({ message: 'Facture data fixed successfully', result });
+    } catch (err) {
+        next(err);
+    }
+}
+
 module.exports={
     createInvoiceForColis,
     getInvoiceById,
     getAllInvoices,
-    getInvoiceByUserId
+    getInvoiceByUserId,
+    fixFactureData
 }

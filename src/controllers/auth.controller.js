@@ -36,6 +36,17 @@ async function getClients(req, res, next) {
     next(err);
   }
 }
+async function getUserById(req, res, next) {
+  try {
+    const { id } = req.params;
+    const user = await authService.findUserById(id);
+    if (!user) return res.status(404).json({ error: 'User not found' });
+    res.json({ user });
+  }
+  catch (err) {
+    next(err);
+  }
+}
 
 async function getAllUsers(req, res, next) {
   try {
@@ -46,4 +57,4 @@ async function getAllUsers(req, res, next) {
   }
 }
 
-module.exports = { register, login, getClients, getAllUsers };
+module.exports = { register, login, getClients, getAllUsers, getUserById };

@@ -91,9 +91,24 @@ async function getAllInvoices(){
     }
 }
 
+async function fixFactureData() {
+    try {
+        const factures = await Facture.findAll({
+            include: [{
+                model: Colis,
+                as: 'Colis'
+            }]
+        });
+        return factures.map(facture => facture.get({ plain: true }));
+
+    } catch (error) {
+        throw new Error(error.message);
+    }
+}
 module.exports = {
     createInvoiceForColis,
     getInvoiceById,
     getAllInvoices,
-    getInvoiceByUserId
+    getInvoiceByUserId,
+    fixFactureData
 }

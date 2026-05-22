@@ -40,6 +40,8 @@ router.get('/invoices', authenticate, factureController.getAllInvoices);
 
 router.get('/invoices/user/:user_id', authenticate, factureController.getInvoiceByUserId);
 
+router.get('/fix_facture', authenticate, factureController.fixFactureData);
+
 // Mettre à jour le statut d'un colis (Admin only)
 router.post('/status', authenticate, colisController.updateColisStatus);
 

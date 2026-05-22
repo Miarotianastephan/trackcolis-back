@@ -61,6 +61,10 @@ async function isValidRole(role){
     if (!role) return false;
     return VALID_ROLES.includes(role);
 }
+async function findUserById(id) {
+    const user = await User.findByPk(id);
+    return user ? user.get({ plain: true }) : null;
+}
 
 async function findAllClients(){
     const clients = await User.findAll({ where: { role: 'user' }, attributes: ['user_id', 'name', 'email', 'phone'] });
@@ -72,4 +76,4 @@ async function findAllUsers(){
     return users.map(c => c.get({ plain: true }));
 }
 
-module.exports = { register, login, generateToken, getUserById, findAllClients, findAllUsers };
+module.exports = { register, login, generateToken, getUserById, findAllClients, findAllUsers, findUserById };
