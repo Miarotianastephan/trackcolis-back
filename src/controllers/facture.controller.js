@@ -22,6 +22,17 @@ async function createInvoiceForColis(req, res, next) {
     }
 }
 
+async function getInvoiceByUserId(req, res, next){
+    try {
+        const { user_id } = req.params;
+        const factures = await factureService.getInvoiceByUserId(user_id);
+        if (!factures || factures.length === 0) return res.status(404).json({ error: 'No invoices found for this user' });
+        res.status(201).json({ factures });
+    } catch (err) {
+        next(err);
+    }
+}
+
 async function getInvoiceById(req, res, next){
     try {
         const { invoice_id } = req.params;
@@ -46,4 +57,5 @@ module.exports={
     createInvoiceForColis,
     getInvoiceById,
     getAllInvoices,
+    getInvoiceByUserId
 }

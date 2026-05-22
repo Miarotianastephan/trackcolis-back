@@ -42,6 +42,24 @@ async function createInvoiceForColis(invoiceData) {
     }
 }
 
+async function getInvoiceByUserId(user_id) {
+    try {
+        if (!user_id || isNaN(user_id)) {
+            throw new Error('user_id is required and must be a valid number');
+        }
+        const factures = await Facture.findAll({
+            where: { user_id },
+            // include: [{
+            //     model: Colis,
+            //     as: 'Colis' // Assuming default alias
+            // }]
+        });
+        return factures.map(facture => facture.get({ plain: true }));
+    } catch (error) {
+        throw new Error(error.message);
+    }
+}
+
 // Modifier la fonction pour inclure les colis associés à la facture    
 async function getInvoiceById(invoice_id) {
     try {
@@ -76,5 +94,6 @@ async function getAllInvoices(){
 module.exports = {
     createInvoiceForColis,
     getInvoiceById,
-    getAllInvoices
+    getAllInvoices,
+    getInvoiceByUserId
 }
