@@ -50,10 +50,7 @@ async function getInvoiceByUserId(user_id) {
         }
         const factures = await Facture.findAll({
             where: { user_id },
-            // include: [{
-            //     model: Colis,
-            //     as: 'Colis' // Assuming default alias
-            // }]
+            order: [['generation_date', 'DESC']]
         });
         return factures.map(facture => facture.get({ plain: true }));
     } catch (error) {
@@ -85,7 +82,9 @@ async function getInvoiceById(invoice_id) {
 
 async function getAllInvoices(){
     try {
-        const factures = await Facture.findAll();
+        const factures = await Facture.findAll({
+            order: [['generation_date', 'DESC']]
+        });
         return factures.map(facture => facture.get({ plain: true }));
     } catch (error) {
         throw new Error(error.message);
@@ -98,11 +97,33 @@ async function fixFactureData() {
             include: [{
                 model: Colis,
                 as: 'Colis'
-            }]
+            }],
+            order: [[{ model: Colis, as: 'Colis' }, 'package_id', 'ASC']]
         });
-        
-        return factures.map(facture => facture.get({ plain: true }));
 
+        const updatedFactures = await Promise.all(factures.map(async (facture) => {
+            const firstColis = facture.Colis?.[0];
+
+            if (!firstColis) {
+                const deletedFacture = facture.get({ plain: true });
+                await facture.destroy();
+
+                return {
+                    ...deletedFacture,
+                    deleted: true
+                };
+            }
+
+            // facture.user_id = firstColis.user_id;
+            // await facture.save();
+
+            return {
+                ...facture.get({ plain: true }),
+                deleted: false
+            };
+        }));
+
+        return updatedFactures;
     } catch (error) {
         throw new Error(error.message);
     }
