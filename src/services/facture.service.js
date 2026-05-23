@@ -3,7 +3,7 @@ const { Facture, Colis } = require('../models');
 
 async function createInvoiceForColis(invoiceData) {
     try {
-        const { colis_ids_array, invoice_type, amount } = invoiceData;
+        const { colis_ids_array, invoice_type, amount, user_id } = invoiceData;
 
         if (!colis_ids_array || !Array.isArray(colis_ids_array) || colis_ids_array.length === 0) {
             throw new Error('colis_ids_array is required and must be a non-empty array');
@@ -28,7 +28,8 @@ async function createInvoiceForColis(invoiceData) {
         const facture = await Facture.create({
             invoice_type,
             amount,
-            generation_date: new Date()
+            generation_date: new Date(),
+            user_id
         });
 
         await Colis.update(

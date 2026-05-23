@@ -2,12 +2,13 @@ const factureService = require('../services/facture.service');
 
 async function createInvoiceForColis(req, res, next) {
     try {
-        const { colis_ids_array, invoice_type, amount} = req.body;
+        const { colis_ids_array, invoice_type, amount, user_id } = req.body;
         
         const facture = await factureService.createInvoiceForColis({
             colis_ids_array,
             invoice_type,
-            amount
+            amount,
+            user_id
         });
 
         res.status(201).json({
